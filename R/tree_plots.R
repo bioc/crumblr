@@ -7,6 +7,7 @@
 #' @param mid mid color on gradient
 #' @param high high color on gradient
 #' @param xmax.scale expand the x-axis by this factor so leaf labels fit in the plot
+#' @param fdr.cutoff value used as the FDR cutoff for significance annotation. Defaults to 0.05.
 #'
 #' @return ggplot2 object
 #' @examples
@@ -34,7 +35,7 @@
 #' @importFrom ggtree ggtree geom_tiplab geom_point2 geom_text2 get_taxa_name
 #' @importFrom ggplot2 scale_size_area theme element_text scale_color_gradient2
 #' @export
-plotTreeTest <- function(tree, low = "grey90", mid = "red", high = "darkred", xmax.scale = 1.5) {
+plotTreeTest <- function(tree, low = "grey90", mid = "red", high = "darkred", xmax.scale = 1.5, fdr.cutoff = 0.05) {
   # PASS R check
   isTip <- label <- node <- FDR <- NULL
 
@@ -43,7 +44,7 @@ plotTreeTest <- function(tree, low = "grey90", mid = "red", high = "darkred", xm
     geom_point2(aes(label = node, color = pmin(4, -log10(FDR)), size = pmin(4, -log10(FDR)))) +
     scale_color_gradient2(name = bquote(-log[10] ~ FDR), limits = c(0, 4), low = low, mid = mid, high = high, midpoint = -log10(0.01)) +
     scale_size_area(name = bquote(-log[10] ~ FDR), limits = c(0, 4)) +
-    geom_text2(aes(label = "+", subset = FDR < 0.05), color = "white", size = 6, vjust = .3, hjust = .5) +
+    geom_text2(aes(label = "+", subset = FDR < fdr.cutoff), color = "white", size = 6, vjust = .3, hjust = .5) +
     theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5))
 
   # get default max value of x-axis
@@ -64,6 +65,9 @@ plotTreeTest <- function(tree, low = "grey90", mid = "red", high = "darkred", xm
 #' @param mid mid color on gradient
 #' @param high high color on gradient
 #' @param xmax.scale expand the x-axis by this factor so leaf labels fit in the plot
+#' @param fdr.cutoff value used as the FDR cutoff for significance annotation. Defaults to 0.05.
+#'
+#' @inheritParams plotTreeTest
 #'
 #' @return ggplot2 object
 #' @examples
@@ -83,10 +87,11 @@ plotTreeTest <- function(tree, low = "grey90", mid = "red", high = "darkred", xm
 #' # Perform multivariate test across the hierarchy
 #' res <- treeTest(fit, cobj, hcl, coef = "StimStatusstim")
 #'
-#' # Plot hierarchy, no tests are significant
+#' # Plot hierarchy, no tests are significant at FDR < 0.05
 #' plotTreeTestBeta(res)
+#' 
 #' @export
-plotTreeTestBeta <- function(tree, low = "blue", mid = "white", high = "red", xmax.scale = 1.5) {
+plotTreeTestBeta <- function(tree, low = "blue", mid = "white", high = "red", xmax.scale = 1.5, fdr.cutoff = 0.05) {
   # PASS R check
   isTip <- label <- node <- FDR <- NULL
 
@@ -106,7 +111,7 @@ plotTreeTestBeta <- function(tree, low = "blue", mid = "white", high = "red", xm
     geom_point2(aes(label = node, color = beta, size = pmin(4, -log10(FDR)))) +
     scale_color_gradient2(name = bquote(beta), low = low, mid = mid, high = high, midpoint = 0, limits = c(-beta_max, beta_max)) +
     scale_size_area(name = bquote(-log[10] ~ FDR), limits = c(0, 4)) +
-    geom_text2(aes(label = "+", subset = FDR < 0.05), color = "white", size = 6, vjust = .3, hjust = .5) +
+    geom_text2(aes(label = "+", subset = FDR < fdr.cutoff), color = "white", size = 6, vjust = .3, hjust = .5) +
     theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5))
 
   # get default max value of x-axis

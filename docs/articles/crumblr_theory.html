@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crumblr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,7 +73,7 @@
 </h4>
             
             <h4 data-toc-skip class="date">Run on 2026-07-06
-12:27:10.998195</h4>
+12:37:08.194641</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/DiseaseNeurogenomics/crumblr/blob/HEAD/vignettes/crumblr_theory.Rmd" class="external-link"><code>vignettes/crumblr_theory.Rmd</code></a></small>
       <div class="d-none name"><code>crumblr_theory.Rmd</code></div>
@@ -92,20 +92,16 @@ from a Dirichlet-multinomial (DMN) distribution with overdispersion
 <span class="math inline">\(\tau\)</span>, where <span class="math inline">\(\tau=1\)</span> reduces to the multinomial
 distribution. The <a href="https://rdrr.io/cran/compositions/man/clr.html" class="external-link">centered log
 ratio</a> (CLR) of the <span class="math inline">\(i^{th}\)</span>
-estimated fraction in <span class="math inline">\({\bf \hat p}\)</span>
-is</p>
+estimated fraction, <span class="math inline">\(\hat p_i\)</span> is</p>
 <p><span class="math display">\[\begin{equation}
 \tag{1}
 \text{clr}_i({\bf \hat p}) = \log(\hat p_i) - \frac{1}{D}\sum_{j=1}^D
 \log(\hat p_j)
 \end{equation}\]</span></p>
 <p>and we show that the sampling variance is</p>
-<p><span class="math display">\[\begin{equation}
-\tag{2}
-\text{var}[\text{clr}_i({\bf \hat p})] =  \frac{\tau}{C} \left[
-\frac{1}{\hat p_i} - \frac{2}{ D \hat p_i} + \frac{1}{D^2}\sum_{j=1}^D
-\frac{1}{\hat p_j}  \right]. \label{eqn2}
-\end{equation}\]</span></p>
+<p><span class="math display">\[\text{var}[\text{clr}(\hat p_i)]
+=  \frac{\tau}{C} \left[ \frac{1}{\hat p_i} - \frac{2}{ D \hat p_i} +
+\frac{1}{D^2}\sum_{j=1}^D \frac{1}{\hat p_j}  \right] .\]</span></p>
 </div>
 <div class="section level3">
 <h3 id="simulations">Simulations<a class="anchor" aria-label="anchor" href="#simulations"></a>
@@ -113,7 +109,7 @@ is</p>
 <p>The sampling variance is derived from asymototic theory, so we
 examine its behavior for finite total counts. Here we evaluate the
 empirical variance from <span class="math inline">\(1,000\)</span> draws
-from a Dirichlet-multinomial distribution while varying <span class="math inline">\(D\)</span>, <span class="math inline">\(\tau\)</span>, <span class="math inline">\(C\)</span>. A pseudocount of 0.5 is added to the
+from a Dirichlet-multinomial distribution while varying <span class="math inline">\(D\)</span>, <span class="math inline">\(\tau\)</span>, and <span class="math inline">\(C\)</span>. A pseudocount of 0.5 is added to the
 observed counts since the asymptotic theory is not defined for counts of
 zero.</p>
 <p>Here we plot the standard deviation after CLR transform from the
@@ -144,7 +140,7 @@ gives a <em>larger</em> standard deviation than the emprical results
 not underestimate the true amount of variation. The asymptotic normal
 approximation is most accurate for large total counts <span class="math inline">\(C\)</span>, large proportions <span class="math inline">\(p\)</span>, and small overdispersion <span class="math inline">\(\tau\)</span>.</p>
 </div>
-<div class="section level5">
+<div class="section level5" style="text-align: justify;">
 <h5 id="consideration-of-overdispersion">Consideration of overdispersion<a class="anchor" aria-label="anchor" href="#consideration-of-overdispersion"></a>
 </h5>
 <div style="text-align: justify;">
@@ -161,6 +157,35 @@ be set to 1 instead of being estimated from the data.</p>
 <code>dmn.mle()</code> to estimate the parameters of the DMN
 distribution and is substantially faster than alternatives.</p>
 </div>
+<p>But note that due the theoretical properties of the variance estimate
+of CLR-transformed proportions, the precision weights are invariant to
+the scale of <span class="math inline">\(\tau\)</span>. We can see this
+empirically:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://DiseaseNeurogenomics.github.io/crumblr" class="external-link">crumblr</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">IFNCellCounts</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="va">df_cellCounts</span></span>
+<span></span>
+<span><span class="co"># run crumblr with different tau values</span></span>
+<span><span class="co"># show part of the weights matrix</span></span>
+<span><span class="fu"><a href="../reference/crumblr.html">crumblr</a></span><span class="op">(</span><span class="va">counts</span>, tau<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">weights</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">##                  ctrl101 ctrl1015 ctrl1016</span></span>
+<span><span class="co">## B cells         2.704599 5.000000 3.094438</span></span>
+<span><span class="co">## CD14+ Monocytes 1.822824 4.143929 2.716263</span></span>
+<span><span class="co">## CD4 T cells     2.044461 3.615231 2.433429</span></span></code></pre>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/crumblr.html">crumblr</a></span><span class="op">(</span><span class="va">counts</span>, tau<span class="op">=</span><span class="fl">5</span><span class="op">)</span><span class="op">$</span><span class="va">weights</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">##                  ctrl101 ctrl1015 ctrl1016</span></span>
+<span><span class="co">## B cells         2.704599 5.000000 3.094438</span></span>
+<span><span class="co">## CD14+ Monocytes 1.822824 4.143929 2.716263</span></span>
+<span><span class="co">## CD4 T cells     2.044461 3.615231 2.433429</span></span></code></pre>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/crumblr.html">crumblr</a></span><span class="op">(</span><span class="va">counts</span>, tau<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span><span class="op">$</span><span class="va">weights</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">##                  ctrl101 ctrl1015 ctrl1016</span></span>
+<span><span class="co">## B cells         2.704599 5.000000 3.094438</span></span>
+<span><span class="co">## CD14+ Monocytes 1.822824 4.143929 2.716263</span></span>
+<span><span class="co">## CD4 T cells     2.044461 3.615231 2.433429</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
@@ -184,7 +209,7 @@ distribution and is substantially faster than alternatives.</p>
 <span><span class="co">## other attached packages:</span></span>
 <span><span class="co">##  [1] lubridate_1.9.5  forcats_1.0.1    stringr_1.6.0    dplyr_1.2.1      purrr_1.2.2     </span></span>
 <span><span class="co">##  [6] readr_2.2.0      tidyr_1.3.2      tibble_3.3.1     tidyverse_2.0.0  glue_1.8.1      </span></span>
-<span><span class="co">## [11] crumblr_1.4.1    ggplot2_4.0.3    BiocStyle_2.38.0</span></span>
+<span><span class="co">## [11] crumblr_1.5.1    ggplot2_4.0.3    BiocStyle_2.38.0</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] RColorBrewer_1.1-3          jsonlite_2.0.0              magrittr_2.0.5             </span></span>
