@@ -3,9 +3,9 @@
 \docType{data}
 \name{IFNCellCounts}
 \alias{IFNCellCounts}
-\alias{info}
 \alias{df_cellCounts}
 \alias{hcl}
+\alias{info}
 \title{Cell counts following interferon treatment}
 \format{
 \itemize{
@@ -14,20 +14,20 @@
 	\item \code{hcl} cluster of cell types based on pseudobulk expression
 }
 
-An object of class \code{data.frame} with 16 rows and 4 columns.
-
 An object of class \code{matrix} (inherits from \code{array}) with 16 rows and 8 columns.
 
 An object of class \code{hclust} of length 7.
+
+An object of class \code{data.frame} with 16 rows and 4 columns.
 }
 \usage{
 data(IFNCellCounts)
 
-data(info)
 
-data(df_cellCounts)
 
-data(hcl)
+
+
+
 }
 \description{
 Counts are from single cell RNA-seq data from treated and untreated samples from Kang, et al (2018).

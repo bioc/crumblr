@@ -21,18 +21,11 @@
 #' @name IFNCellCounts
 NULL
 
-
-#' @docType data
-#' @name IFNCellCounts
-#' @keywords datasets
-"info"
-
-#' @docType data
-#' @name IFNCellCounts
-#' @keywords datasets
+#' @rdname IFNCellCounts
 "df_cellCounts"
 
-#' @docType data
-#' @name IFNCellCounts
-#' @keywords datasets
+#' @rdname IFNCellCounts
 "hcl"
+
+#' @rdname IFNCellCounts
+"info"
